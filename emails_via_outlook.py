@@ -4,11 +4,9 @@ from string import Template
 import pandas as pd
 import pathlib
 
-path = pathlib.Path('name_list.csv')
-
 outlook = win32com.client.Dispatch('outlook.application')
 
-file = pd.read_csv('name_list.csv')
+file = pd.read_csv('outlook_emails\\name_list.csv')
 
 # input paths to attachment_files as args, use path from source
 def create_mail(emailadress, subject, message, *args):
