@@ -6,18 +6,28 @@ import pathlib
 
 outlook = win32com.client.Dispatch('outlook.application')
 
-file = pd.read_csv('outlook_emails\\name_list.csv')
+file = pd.read_csv('bijlagen\\name_list.csv')
+file = file.fillna(0)
 
-# input paths to attachment_files as args, use path from source
-def create_mail(emailadress, subject, message, *args):
+# Create email object and add email, CC emails, subject, message and (multiple) attachments [input path to directory]
+def create_mail(email_to, subject, message, attachment_dir=None, email_cc=None):
     mail = outlook.CreateItem(0)
-    mail.To = emailadress
+    mail.To = email_to
     mail.Subject = subject
     mail.HTMLBody = message
-    if args:
-        attachment_paths = list(args)
-        for i in attachment_paths:
-            mail.Attachments.Add(i)
+
+    if attachment_dir: #check if attachment is added
+        # create absolute paths for files and loops trough them to add to mail object
+        p = pathlib.Path(attachment_dir).absolute() 
+        attachments = list(p.iterdir())
+        for child in attachments:
+            print(child)
+        mail.Attachments.Add(str(child))     
+
+    if email_cc:
+        if str(email_cc): #check if value in CC is not empty
+            mail.CC = email_cc
+
     return mail
 
 # creates message by substituting required fields
@@ -29,9 +39,10 @@ def subsitute_message(pahttohtml, name):
 if __name__ == '__main__':
     for i in file.values:
         try:
-            html = subsitute_message('outlook_emails\\formatted_body.html', i[0])
-            mail = create_mail(i[1], 'Sample', html)
+            html = subsitute_message('formatted_body.html', i[0])
+            mail = create_mail(i[1], 'Sample', html, 'bijlagen', i[2])
             mail.Display()
+
         except ValueError as err:
             print(err)
         except TypeError as err:
