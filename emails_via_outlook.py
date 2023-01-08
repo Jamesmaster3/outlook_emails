@@ -40,7 +40,7 @@ if __name__ == '__main__':
     for i in file.values:
         try:
             html = subsitute_message('formatted_body.html', i[0])
-            mail = create_mail(i[1], 'Sample', html, 'bijlagen', i[2])
+            mail = create_mail(email_to=i[1], subject='Sample', message=html, attachment_dir='bijlagen', email_cc=i[2])
             mail.Display()
 
         except ValueError as err:
