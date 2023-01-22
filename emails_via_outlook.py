@@ -4,15 +4,16 @@ from string import Template
 import pandas as pd
 import pathlib
 
-outlook = win32com.client.Dispatch('outlook.application')
+# creates message by substituting required fields
+def subsitute_message(pahttohtml, name):
+    html = Template(Path(pahttohtml).read_text())
+    html = html.substitute({'name': name})
+    return html
 
-file = pd.read_csv('name_list.csv')
-file = file.fillna(0)
 
 # Create email object and add email, CC emails, subject, message and (multiple) attachments [input path to directory]
-
-
 def create_mail(email_to, subject, message, attachment_dir=None, email_cc=None):
+    outlook = win32com.client.Dispatch('outlook.application')
     mail = outlook.CreateItem(0)
     mail.To = email_to
     mail.Subject = subject
@@ -32,16 +33,11 @@ def create_mail(email_to, subject, message, attachment_dir=None, email_cc=None):
 
     return mail
 
-# creates message by substituting required fields
 
+def main():
+    file = pd.read_csv('name_list.csv')
+    file = file.fillna(0)
 
-def subsitute_message(pahttohtml, name):
-    html = Template(Path(pahttohtml).read_text())
-    html = html.substitute({'name': name})
-    return html
-
-
-if __name__ == '__main__':
     for i in file.values:
         try:
             html = subsitute_message('formatted_body.html', i[0])
@@ -55,3 +51,6 @@ if __name__ == '__main__':
             print(err)
         except IndexError as err:
             print(err)
+
+if __name__ == '__main__':
+    main()
